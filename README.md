@@ -1,73 +1,240 @@
-# Welcome to your Lovable project
+# Brows & Beyond
 
-## Project info
+A modern, responsive web application for "Brows & Beyond by Sonali", a permanent makeup artistry service. Built with React, Vite, and Tailwind CSS, it showcases services, artist information, and provides an appointment booking interface.
 
-**URL**: https://lovable.dev/projects/b3bb9aab-8f28-4fe3-98ba-9612f6810d7c
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen) ![License](https://img.shields.io/badge/license-MIT-blue) ![Version](https://img.shields.io/badge/version-0.0.0-blue) ![Language](https://img.shields.io/badge/language-TypeScript-blue)
 
-## How can I edit this code?
+- --
 
-There are several ways of editing your application.
+## Table of Contents
 
-**Use Lovable**
+-   [Key Features](#key-features)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b3bb9aab-8f28-4fe3-98ba-9612f6810d7c) and start prompting.
+-   [Architecture Overview](#architecture-overview)
 
-Changes made via Lovable will be committed automatically to this repo.
+-   [Tech Stack](#tech-stack)
 
-**Use your preferred IDE**
+-   [Getting Started](#getting-started)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+    -   [Prerequisites](#prerequisites)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+    -   [Installation](#installation)
 
-Follow these steps:
+-   [Configuration](#configuration)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+-   [Usage](#usage)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+-   [Project Structure](#project-structure)
 
-# Step 3: Install the necessary dependencies.
-npm i
+-   [Scripts](#scripts)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+-   [Roadmap](#roadmap)
+
+-   [Contributing](#contributing)
+
+-   [Testing](#testing)
+
+-   [License](#license)
+
+-   [Acknowledgements](#acknowledgements)
+
+- --
+
+## Key Features
+
+*   **Modern Frontend Stack**: Developed with React, Vite, and TypeScript for a fast, efficient, and type-safe development experience.
+
+*   **Responsive UI**: Utilizes Tailwind CSS and shadcn/ui components to ensure a consistent and adaptive user interface across all devices.
+
+*   **Service Showcase**: Dedicated sections to detail the range of permanent makeup services offered.
+
+*   **Artist Profile**: Features an "About Sonali" section with dynamic statistics to highlight experience and client satisfaction.
+
+*   **Appointment Booking**: An interactive modal form for clients to easily schedule consultations.
+
+*   **Efficient State Management**: Leverages React Query for robust data fetching, caching, and synchronization.
+
+*   **Client-side Routing**: Powered by React Router DOM for seamless navigation between different application views.
+
+- --
+
+## Architecture Overview
+
+This project is a single-page application (SPA) built using React and Vite. It follows a component-based architecture, where the user interface is composed of reusable React components. Client-side routing is handled by React Router DOM, enabling smooth navigation without full page reloads. Data fetching and asynchronous state management are efficiently managed using React Query, providing a robust and performant data layer. The styling is implemented with Tailwind CSS, complemented by shadcn/ui components, which offer a collection of accessible and customizable UI primitives. The application is designed to be fully responsive, adapting to various screen sizes and devices.
+
+- --
+
+## Tech Stack
+
+| Area | Tool | Version |
+|---|---|---|
+|---|---|---|
+| Frontend Framework | React | 18.x |
+| Build Tool | Vite | 5.x |
+|---|---|---|
+| Language | TypeScript | 5.x |
+| Styling | Tailwind CSS | 3.x |
+|---|---|---|
+| UI Components | shadcn/ui | Latest |
+| Routing | React Router DOM | 6.x |
+|---|---|---|
+| Data Fetching/State | React Query | 5.x |
+| Form Management | React Hook Form | 7.x |
+|---|---|---|
+| Validation | Zod | 3.x |
+| Linting | ESLint | 9.x |
+
+
+
+- --
+
+## Getting Started
+
+Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+*   **Node.js**: Version 18 or higher.
+
+    *   [Download Node.js](https://nodejs.org/en/download/)
+
+    *   Alternatively, use a version manager like `nvm`: `nvm install 18`
+
+*   **npm** (Node Package Manager) or **Yarn** / **pnpm**: Comes with Node.js, or install separately.
+
+### Installation
+
+1.  **Clone the repository**:
+
+```bash
+git clone https://github.com/Kthombare-dev/brows-and-beyond.git
+
 ```
+2.  **Navigate into the project directory**:
 
-**Edit a file directly in GitHub**
+```bash
+cd brows-and-beyond
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+3.  **Install dependencies**:
 
-**Use GitHub Codespaces**
+```bash
+npm install
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# or
+pnpm install
 
-## What technologies are used for this project?
+# or
+    yarn install
 
-This project is built with:
+```
+- --
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Configuration
 
-## How can I deploy this project?
+The application can be configured using environment variables. Create a `.env` file in the root directory and populate it with the necessary variables.
 
-Simply open [Lovable](https://lovable.dev/projects/b3bb9aab-8f28-4fe3-98ba-9612f6810d7c) and click on Share -> Publish.
+| ENV | Description | Example |
+|---|---|---|
+|---|---|---|
+| `VITE_APP_TITLE` | The title of the application displayed in the browser tab. | `Brows & Beyond by Sonali` |
+| `VITE_API_BASE_URL` | Base URL for any backend API calls (if applicable). | `https://api.example.com/v1` |
 
-## Can I connect a custom domain to my Lovable project?
 
-Yes, you can!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- --
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Usage
+
+To start the development server and view the application in your browser:
+
+```bash
+npm run dev
+
+```
+The application will typically be available at `http://localhost:8080`.
+
+To create a production-ready build:
+
+```bash
+npm run build
+
+```
+This will compile the application into the `dist` directory, which can then be served by any static file server.
+
+- --
+
+## Project Structure
+
+```
+.
+
+├── public/
+│   └── ... (static assets like images, favicon)
+
+├── src/
+│   ├── assets/
+
+│   │   └── ... (local images, icons)
+│   ├── components/
+
+│   │   ├── ui/
+│   │   │   └── ... (shadcn/ui components)
+
+│   │   ├── About.tsx
+│   │   ├── BookingForm.tsx
+
+│   │   ├── Footer.tsx
+│   │   └── ... (other custom React components)
+
+│   ├── hooks/
+│   │   └── ... (custom React hooks)
+
+│   ├── lib/
+│   │   └── utils.ts (utility functions)
+
+│   ├── pages/
+│   │   ├── Index.tsx
+
+│   │   ├── Services.tsx
+│   │   └── NotFound.tsx
+
+│   ├── App.tsx (main application component)
+│   ├── index.css (main CSS file, including Tailwind directives)
+
+│   └── main.tsx (entry point for React application)
+├── .eslintrc.cjs (ESLint configuration)
+
+├── components.json (shadcn/ui configuration)
+├── postcss.config.js (PostCSS configuration for Tailwind CSS)
+
+├── package.json (project metadata and scripts)
+├── tailwind.config.ts (Tailwind CSS configuration)
+
+├── tsconfig.app.json (TypeScript config for application code)
+├── tsconfig.json (base TypeScript configuration)
+
+├── tsconfig.node.json (TypeScript config for Node.js environment files)
+└── vite.config.ts (Vite build configuration)
+
+```
+- --
+
+## Scripts
+
+The `package.json` includes several convenient scripts for development and building:
+
+| Command | Description |
+|---|---|
+|---|---|
+| `dev` | Starts the local development server with hot-reloading. |
+| `build` | Compiles the project for production deployment. |
+|---|---|
+| `build:dev` | Compiles the project in development mode (for debugging production builds). |
+| `lint` | Runs ESLint to check for code quality and style issues. |
+|---|---|
+| `preview` | Serves the production build locally for testing before deployment. |
+
+
