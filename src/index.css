@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Beauty website design system - Pink theme inspired by Brows & Beyond */
+
+@layer base {
+  :root {
+    --background: 350 25% 97%;
+    --foreground: 240 10% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
+
+    --primary: 340 85% 47%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 350 15% 92%;
+    --secondary-foreground: 240 10% 15%;
+
+    --muted: 350 15% 95%;
+    --muted-foreground: 240 5% 45%;
+
+    --accent: 340 85% 47%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 350 20% 90%;
+    --input: 350 20% 95%;
+    --ring: 340 85% 47%;
+
+    --radius: 0.75rem;
+    
+    /* Beauty brand colors */
+    --pink-primary: 340 85% 47%;
+    --pink-light: 340 60% 85%;
+    --pink-dark: 340 85% 35%;
+    --rose-bg: 350 25% 97%;
+    --text-dark: 240 10% 15%;
+    --text-muted: 240 5% 45%;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 240 15% 8%;
+    --foreground: 0 0% 95%;
+
+    --card: 240 15% 10%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 240 15% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 340 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 10% 15%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 240 10% 15%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 340 85% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 10% 20%;
+    --input: 240 10% 15%;
+    --ring: 340 85% 55%;
+    
+    --pink-primary: 340 85% 55%;
+    --pink-light: 340 40% 25%;
+    --pink-dark: 340 85% 45%;
+    --rose-bg: 240 15% 8%;
+    --text-dark: 0 0% 95%;
+    --text-muted: 240 5% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    overflow-x: hidden;
+  }
+
+  html {
+    overflow-x: hidden;
+  }
+
+  /* Ensure sections don't have hidden overflow */
+  section {
+    overflow: visible;
+  }
+
+  /* Prevent horizontal scrollbars */
+  .container, .max-w-7xl {
+    overflow-x: visible;
+  }
+
+  /* Custom Marquee Animation - Faster speed */
+  @keyframes marquee-fast {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee-fast {
+    animation: marquee-fast 20s linear infinite;
+  }
+
+  /* Responsive marquee speeds */
+  @media (max-width: 768px) {
+    .animate-marquee-fast {
+      animation: marquee-fast 15s linear infinite;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .animate-marquee-fast {
+      animation: marquee-fast 12s linear infinite;
+    }
+  }
+}
