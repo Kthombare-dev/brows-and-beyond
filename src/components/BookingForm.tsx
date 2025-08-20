@@ -8,14 +8,151 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 
+interface FormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  service: string;
+  preferredDate: string;
+  preferredTime: string;
+  notes: string;
+}
+
+interface FormErrors {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  service?: string;
+  preferredDate?: string;
+  preferredTime?: string;
+}
+
 const BookingForm = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    fullName: "",
+    email: "",
+    phone: "",
+    service: "",
+    preferredDate: "",
+    preferredTime: "",
+    notes: ""
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Validation functions
+  const validateFullName = (name: string): string | undefined => {
+    if (!name.trim()) return "Full name is required";
+    if (name.length > 40) return "Full name must be 40 characters or less";
+    if (!/^[a-zA-Z\s]+$/.test(name)) return "Full name can only contain letters and spaces";
+    return undefined;
+  };
+
+  const validateEmail = (email: string): string | undefined => {
+    if (!email.trim()) return "Email is required";
+    if (!email.includes("@")) return "Email must contain @ symbol";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address";
+    return undefined;
+  };
+
+  const validatePhone = (phone: string): string | undefined => {
+    if (!phone.trim()) return "Phone number is required";
+    if (!/^\d{10}$/.test(phone.replace(/\s/g, ""))) return "Phone number must be exactly 10 digits";
+    return undefined;
+  };
+
+  const validateService = (service: string): string | undefined => {
+    if (!service) return "Please select a service";
+    return undefined;
+  };
+
+  const validateDate = (date: string): string | undefined => {
+    if (!date) return "Please select a preferred date";
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) return "Date cannot be in the past";
+    return undefined;
+  };
+
+  const validateTime = (time: string): string | undefined => {
+    if (!time) return "Please select a preferred time";
+    return undefined;
+  };
+
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handlePhoneChange = (value: string) => {
+    // Only allow digits and limit to 10 characters
+    const numericValue = value.replace(/\D/g, "").slice(0, 10);
+    handleInputChange("phone", numericValue);
+  };
+
+  const handleFullNameChange = (value: string) => {
+    // Only allow letters and spaces, limit to 40 characters
+    const alphabeticValue = value.replace(/[^a-zA-Z\s]/g, "").slice(0, 40);
+    handleInputChange("fullName", alphabeticValue);
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    newErrors.fullName = validateFullName(formData.fullName);
+    newErrors.email = validateEmail(formData.email);
+    newErrors.phone = validatePhone(formData.phone);
+    newErrors.service = validateService(formData.service);
+    newErrors.preferredDate = validateDate(formData.preferredDate);
+    newErrors.preferredTime = validateTime(formData.preferredTime);
+
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => error !== undefined);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log("Booking form submitted");
-    setIsOpen(false);
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log("Booking form submitted:", formData);
+      
+      // Reset form
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        service: "",
+        preferredDate: "",
+        preferredTime: "",
+        notes: ""
+      });
+      setErrors({});
+      setIsOpen(false);
+      
+      // Show success message (you can add a toast notification here)
+      alert("Booking submitted successfully! We'll contact you soon.");
+      
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("There was an error submitting your booking. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -56,10 +193,18 @@ const BookingForm = () => {
                     </Label>
                     <Input 
                       id="fullName" 
+                      value={formData.fullName}
+                      onChange={(e) => handleFullNameChange(e.target.value)}
                       placeholder="Enter your full name"
-                      className="border-2 border-input focus:border-pink-500 rounded-lg h-10 sm:h-11 text-sm sm:text-base"
-                      required
+                      className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                        errors.fullName 
+                          ? "border-red-500 focus:border-red-500" 
+                          : "border-input focus:border-pink-500"
+                      }`}
                     />
+                    {errors.fullName && (
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.fullName}</p>
+                    )}
                   </div>
 
                   <div className="space-y-1 sm:space-y-2">
@@ -69,10 +214,18 @@ const BookingForm = () => {
                     <Input 
                       id="email" 
                       type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange("email", e.target.value)}
                       placeholder="Enter your email"
-                      className="border-2 border-input focus:border-pink-500 rounded-lg h-10 sm:h-11 text-sm sm:text-base"
-                      required
+                      className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                        errors.email 
+                          ? "border-red-500 focus:border-red-500" 
+                          : "border-input focus:border-pink-500"
+                      }`}
                     />
+                    {errors.email && (
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>
+                    )}
                   </div>
                 </div>
 
@@ -84,18 +237,33 @@ const BookingForm = () => {
                     <Input 
                       id="phone" 
                       type="tel"
-                      placeholder="Enter your phone number"
-                      className="border-2 border-input focus:border-pink-500 rounded-lg h-10 sm:h-11 text-sm sm:text-base"
-                      required
+                      value={formData.phone}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      placeholder="Enter 10-digit phone number"
+                      className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                        errors.phone 
+                          ? "border-red-500 focus:border-red-500" 
+                          : "border-input focus:border-pink-500"
+                      }`}
                     />
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.phone}</p>
+                    )}
                   </div>
 
                   <div className="space-y-1 sm:space-y-2">
                     <Label htmlFor="service" className="text-foreground font-semibold text-sm sm:text-base">
                       Service *
                     </Label>
-                    <Select required>
-                      <SelectTrigger className="border-2 border-input focus:border-pink-500 rounded-lg h-10 sm:h-11 text-sm sm:text-base">
+                    <Select 
+                      value={formData.service} 
+                      onValueChange={(value) => handleInputChange("service", value)}
+                    >
+                      <SelectTrigger className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                        errors.service 
+                          ? "border-red-500 focus:border-red-500" 
+                          : "border-input focus:border-pink-500"
+                      }`}>
                         <SelectValue placeholder="Select a service" />
                       </SelectTrigger>
                       <SelectContent>
@@ -108,6 +276,9 @@ const BookingForm = () => {
                         <SelectItem value="permanent-eyeliner">Permanent Eyeliner</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.service && (
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.service}</p>
+                    )}
                   </div>
                 </div>
 
@@ -119,17 +290,32 @@ const BookingForm = () => {
                     <Input 
                       id="preferredDate" 
                       type="date"
-                      className="border-2 border-input focus:border-pink-500 rounded-lg h-10 sm:h-11 text-sm sm:text-base"
-                      required
+                      value={formData.preferredDate}
+                      onChange={(e) => handleInputChange("preferredDate", e.target.value)}
+                      className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                        errors.preferredDate 
+                          ? "border-red-500 focus:border-red-500" 
+                          : "border-input focus:border-pink-500"
+                      }`}
                     />
+                    {errors.preferredDate && (
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.preferredDate}</p>
+                    )}
                   </div>
 
                   <div className="space-y-1 sm:space-y-2">
                     <Label htmlFor="preferredTime" className="text-foreground font-semibold text-sm sm:text-base">
                       Preferred Time *
                     </Label>
-                    <Select required>
-                      <SelectTrigger className="border-2 border-input focus:border-pink-500 rounded-lg h-10 sm:h-11 text-sm sm:text-base">
+                    <Select 
+                      value={formData.preferredTime} 
+                      onValueChange={(value) => handleInputChange("preferredTime", value)}
+                    >
+                      <SelectTrigger className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                        errors.preferredTime 
+                          ? "border-red-500 focus:border-red-500" 
+                          : "border-input focus:border-pink-500"
+                      }`}>
                         <SelectValue placeholder="Select time" />
                       </SelectTrigger>
                       <SelectContent>
@@ -144,6 +330,9 @@ const BookingForm = () => {
                         <SelectItem value="17:00">5:00 PM</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.preferredTime && (
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.preferredTime}</p>
+                    )}
                   </div>
                 </div>
 
@@ -153,6 +342,8 @@ const BookingForm = () => {
                   </Label>
                   <Textarea 
                     id="notes" 
+                    value={formData.notes}
+                    onChange={(e) => handleInputChange("notes", e.target.value)}
                     placeholder="Any specific requirements or questions?"
                     className="border-2 border-input focus:border-pink-500 rounded-lg min-h-[80px] sm:min-h-[100px] text-sm sm:text-base"
                   />
@@ -161,15 +352,17 @@ const BookingForm = () => {
                 <div className="flex flex-col sm:flex-row gap-3 pt-4">
                   <Button 
                     type="submit" 
-                    className="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold py-2 sm:py-3 rounded-lg transition-all duration-300 text-sm sm:text-base"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold py-2 sm:py-3 rounded-lg transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Confirm Appointment
+                    {isSubmitting ? "Submitting..." : "Confirm Appointment"}
                   </Button>
                   <Button 
                     type="button" 
                     variant="outline" 
                     onClick={() => setIsOpen(false)}
-                    className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base"
+                    disabled={isSubmitting}
+                    className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </Button>

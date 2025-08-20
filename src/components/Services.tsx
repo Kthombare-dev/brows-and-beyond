@@ -3,6 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 import eyebrowsResult from "@/assets/eyebrows-result.jpg";
 import lipBlush from "@/assets/lip-blush.jpg";
@@ -74,13 +78,151 @@ const services = [
   }
 ];
 
+interface FormData {
+  fullName: string;
+  email: string;
+  phone: string;
+  service: string;
+  preferredDate: string;
+  preferredTime: string;
+  notes: string;
+}
+
+interface FormErrors {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  service?: string;
+  preferredDate?: string;
+  preferredTime?: string;
+}
+
 const Services = () => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    fullName: "",
+    email: "",
+    phone: "",
+    service: "",
+    preferredDate: "",
+    preferredTime: "",
+    notes: ""
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Validation functions
+  const validateFullName = (name: string): string | undefined => {
+    if (!name.trim()) return "Full name is required";
+    if (name.length > 40) return "Full name must be 40 characters or less";
+    if (!/^[a-zA-Z\s]+$/.test(name)) return "Full name can only contain letters and spaces";
+    return undefined;
+  };
+
+  const validateEmail = (email: string): string | undefined => {
+    if (!email.trim()) return "Email is required";
+    if (!email.includes("@")) return "Email must contain @ symbol";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address";
+    return undefined;
+  };
+
+  const validatePhone = (phone: string): string | undefined => {
+    if (!phone.trim()) return "Phone number is required";
+    if (!/^\d{10}$/.test(phone.replace(/\s/g, ""))) return "Phone number must be exactly 10 digits";
+    return undefined;
+  };
+
+  const validateService = (service: string): string | undefined => {
+    if (!service) return "Please select a service";
+    return undefined;
+  };
+
+  const validateDate = (date: string): string | undefined => {
+    if (!date) return "Please select a preferred date";
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) return "Date cannot be in the past";
+    return undefined;
+  };
+
+  const validateTime = (time: string): string | undefined => {
+    if (!time) return "Please select a preferred time";
+    return undefined;
+  };
+
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handlePhoneChange = (value: string) => {
+    // Only allow digits and limit to 10 characters
+    const numericValue = value.replace(/\D/g, "").slice(0, 10);
+    handleInputChange("phone", numericValue);
+  };
+
+  const handleFullNameChange = (value: string) => {
+    // Only allow letters and spaces, limit to 40 characters
+    const alphabeticValue = value.replace(/[^a-zA-Z\s]/g, "").slice(0, 40);
+    handleInputChange("fullName", alphabeticValue);
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    newErrors.fullName = validateFullName(formData.fullName);
+    newErrors.email = validateEmail(formData.email);
+    newErrors.phone = validatePhone(formData.phone);
+    newErrors.service = validateService(formData.service);
+    newErrors.preferredDate = validateDate(formData.preferredDate);
+    newErrors.preferredTime = validateTime(formData.preferredTime);
+
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => error !== undefined);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Booking form submitted");
-    setIsBookingOpen(false);
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log("Booking form submitted:", formData);
+      
+      // Reset form
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        service: "",
+        preferredDate: "",
+        preferredTime: "",
+        notes: ""
+      });
+      setErrors({});
+      setIsBookingOpen(false);
+      
+      // Show success message
+      alert("Booking submitted successfully! We'll contact you soon.");
+      
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("There was an error submitting your booking. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -130,114 +272,194 @@ const Services = () => {
                       Book Now
                     </button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="w-[95vw] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl max-h-[90vh] overflow-y-auto mx-2 sm:mx-4">
                     <DialogHeader className="text-center">
-                      <DialogTitle className="text-2xl font-bold text-neutral-900">
+                      <DialogTitle className="text-xl sm:text-2xl font-bold text-neutral-900">
                         Schedule Your Transformation
                       </DialogTitle>
-                      <p className="text-neutral-600 mt-2">
+                      <p className="text-sm sm:text-base text-neutral-600 mt-2">
                         Fill out the form below to book your consultation
                       </p>
                     </DialogHeader>
+                    
+                    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div className="space-y-1 sm:space-y-2">
+                          <Label htmlFor="fullName" className="text-foreground font-semibold text-sm sm:text-base">
+                            Full Name *
+                          </Label>
+                          <Input 
+                            id="fullName" 
+                            value={formData.fullName}
+                            onChange={(e) => handleFullNameChange(e.target.value)}
+                            placeholder="Enter your full name"
+                            className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                              errors.fullName 
+                                ? "border-red-500 focus:border-red-500" 
+                                : "border-input focus:border-pink-500"
+                            }`}
+                          />
+                          {errors.fullName && (
+                            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.fullName}</p>
+                          )}
+                        </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6 mt-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-2">
-                            First Name *
-                          </label>
-                          <input
-                            type="text"
-                            id="firstName"
-                            required
-                            className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-colors"
-                            placeholder="Enter your first name"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-2">
-                            Last Name *
-                          </label>
-                          <input
-                            type="text"
-                            id="lastName"
-                            required
-                            className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-colors"
-                            placeholder="Enter your last name"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label htmlFor="phone" className="block text-sm font-medium text-neutral-700 mb-2">
-                            Phone Number *
-                          </label>
-                          <input
-                            type="tel"
-                            id="phone"
-                            required
-                            className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-colors"
-                            placeholder="Enter your phone number"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
-                            Email Address
-                          </label>
-                          <input
+                        <div className="space-y-1 sm:space-y-2">
+                          <Label htmlFor="email" className="text-foreground font-semibold text-sm sm:text-base">
+                            Email Address *
+                          </Label>
+                          <Input 
+                            id="email" 
                             type="email"
-                            id="email"
-                            className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-colors"
-                            placeholder="Enter your email address"
+                            value={formData.email}
+                            onChange={(e) => handleInputChange("email", e.target.value)}
+                            placeholder="Enter your email"
+                            className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                              errors.email 
+                                ? "border-red-500 focus:border-red-500" 
+                                : "border-input focus:border-pink-500"
+                            }`}
                           />
+                          {errors.email && (
+                            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>
+                          )}
                         </div>
                       </div>
 
-                      <div>
-                        <label htmlFor="service" className="block text-sm font-medium text-neutral-700 mb-2">
-                          Service Interested In *
-                        </label>
-                        <select
-                          id="service"
-                          required
-                          className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-colors"
-                        >
-                          <option value="">Select a service</option>
-                          <option value="microblading">Microblading</option>
-                          <option value="combination-brows">Combination Brows</option>
-                          <option value="lip-blush">Lip Blush</option>
-                          <option value="microshading">Microshading</option>
-                          <option value="lash-curl">Lash Curl</option>
-                          <option value="bb-glow">BB Glow</option>
-                          <option value="permanent-eyeliner">Permanent Eyeliner</option>
-                        </select>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div className="space-y-1 sm:space-y-2">
+                          <Label htmlFor="phone" className="text-foreground font-semibold text-sm sm:text-base">
+                            Phone Number *
+                          </Label>
+                          <Input 
+                            id="phone" 
+                            type="tel"
+                            value={formData.phone}
+                            onChange={(e) => handlePhoneChange(e.target.value)}
+                            placeholder="Enter 10-digit phone number"
+                            className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                              errors.phone 
+                                ? "border-red-500 focus:border-red-500" 
+                                : "border-input focus:border-pink-500"
+                            }`}
+                          />
+                          {errors.phone && (
+                            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.phone}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1 sm:space-y-2">
+                          <Label htmlFor="service" className="text-foreground font-semibold text-sm sm:text-base">
+                            Service *
+                          </Label>
+                          <Select 
+                            value={formData.service} 
+                            onValueChange={(value) => handleInputChange("service", value)}
+                          >
+                            <SelectTrigger className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                              errors.service 
+                                ? "border-red-500 focus:border-red-500" 
+                                : "border-input focus:border-pink-500"
+                            }`}>
+                              <SelectValue placeholder="Select a service" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="microblading">Microblading</SelectItem>
+                              <SelectItem value="combination-brows">Combination Brows</SelectItem>
+                              <SelectItem value="lip-blush">Lip Blush</SelectItem>
+                              <SelectItem value="microshading">Microshading</SelectItem>
+                              <SelectItem value="lash-curl">Lash Curl</SelectItem>
+                              <SelectItem value="bb-glow">BB Glow</SelectItem>
+                              <SelectItem value="permanent-eyeliner">Permanent Eyeliner</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.service && (
+                            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.service}</p>
+                          )}
+                        </div>
                       </div>
 
-                      <div>
-                        <label htmlFor="message" className="block text-sm font-medium text-neutral-700 mb-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div className="space-y-1 sm:space-y-2">
+                          <Label htmlFor="preferredDate" className="text-foreground font-semibold text-sm sm:text-base">
+                            Preferred Date *
+                          </Label>
+                          <Input 
+                            id="preferredDate" 
+                            type="date"
+                            value={formData.preferredDate}
+                            onChange={(e) => handleInputChange("preferredDate", e.target.value)}
+                            className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                              errors.preferredDate 
+                                ? "border-red-500 focus:border-red-500" 
+                                : "border-input focus:border-pink-500"
+                            }`}
+                          />
+                          {errors.preferredDate && (
+                            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.preferredDate}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-1 sm:space-y-2">
+                          <Label htmlFor="preferredTime" className="text-foreground font-semibold text-sm sm:text-base">
+                            Preferred Time *
+                          </Label>
+                          <Select 
+                            value={formData.preferredTime} 
+                            onValueChange={(value) => handleInputChange("preferredTime", value)}
+                          >
+                            <SelectTrigger className={`border-2 rounded-lg h-10 sm:h-11 text-sm sm:text-base ${
+                              errors.preferredTime 
+                                ? "border-red-500 focus:border-red-500" 
+                                : "border-input focus:border-pink-500"
+                            }`}>
+                              <SelectValue placeholder="Select time" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="9:00">9:00 AM</SelectItem>
+                              <SelectItem value="10:00">10:00 AM</SelectItem>
+                              <SelectItem value="11:00">11:00 AM</SelectItem>
+                              <SelectItem value="12:00">12:00 PM</SelectItem>
+                              <SelectItem value="13:00">1:00 PM</SelectItem>
+                              <SelectItem value="14:00">2:00 PM</SelectItem>
+                              <SelectItem value="15:00">3:00 PM</SelectItem>
+                              <SelectItem value="16:00">4:00 PM</SelectItem>
+                              <SelectItem value="17:00">5:00 PM</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.preferredTime && (
+                            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.preferredTime}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 sm:space-y-2">
+                        <Label htmlFor="notes" className="text-foreground font-semibold text-sm sm:text-base">
                           Additional Notes
-                        </label>
-                        <textarea
-                          id="message"
-                          rows={4}
-                          className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-colors"
-                          placeholder="Any specific requirements or questions..."
+                        </Label>
+                        <Textarea 
+                          id="notes" 
+                          value={formData.notes}
+                          onChange={(e) => handleInputChange("notes", e.target.value)}
+                          placeholder="Any specific requirements or questions?"
+                          className="border-2 border-input focus:border-pink-500 rounded-lg min-h-[80px] sm:min-h-[100px] text-sm sm:text-base"
                         />
                       </div>
 
-                      <div className="flex gap-3 pt-4">
-                        <Button
-                          type="submit"
-                          className="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold py-3 rounded-lg transition-all duration-300"
+                      <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                        <Button 
+                          type="submit" 
+                          disabled={isSubmitting}
+                          className="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold py-2 sm:py-3 rounded-lg transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Confirm Appointment
+                          {isSubmitting ? "Submitting..." : "Confirm Appointment"}
                         </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
+                        <Button 
+                          type="button" 
+                          variant="outline" 
                           onClick={() => setIsBookingOpen(false)}
-                          className="px-6 py-3 rounded-lg"
+                          disabled={isSubmitting}
+                          className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Cancel
                         </Button>
@@ -246,7 +468,7 @@ const Services = () => {
                   </DialogContent>
                 </Dialog>
                 <a 
-                  href="https://wa.me/919654500004?text=Thank%20you%20for%20choosing%20Brows%20%26%20Beyond.%20We%20appreciate%20your%20interest%20in%20our%20services.%20We%20will%20get%20back%20to%20you%20soon%20once%20we%20receive%20your%20inquiry." 
+                  href="https://wa.me/919654500004?text=Hi%20Sonali!%20I%20hope%20you're%20doing%20well.%20I%20came%20across%20your%20beautiful%20work%20and%20I'm%20interested%20in%20learning%20more%20about%20your%20services.%20Could%20you%20please%20share%20some%20details%20about%20pricing%20and%20availability?%20Thank%20you!" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-pink-500 text-pink-600 font-semibold rounded-lg hover:bg-pink-50 transition-all duration-200"
@@ -296,7 +518,7 @@ const Services = () => {
                   Book Now
                 </button>
                 <a 
-                  href="https://wa.me/919654500004?text=Thank%20you%20for%20choosing%20Brows%20%26%20Beyond.%20We%20appreciate%20your%20interest%20in%20our%20services.%20We%20will%20get%20back%20to%20you%20soon%20once%20we%20receive%20your%20inquiry." 
+                  href="https://wa.me/919654500004?text=Hi%20Sonali!%20I%20hope%20you're%20doing%20well.%20I%20came%20across%20your%20beautiful%20work%20and%20I'm%20interested%20in%20learning%20more%20about%20your%20services.%20Could%20you%20please%20share%20some%20details%20about%20pricing%20and%20availability?%20Thank%20you!" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-purple-500 text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-all duration-200"
@@ -346,7 +568,7 @@ const Services = () => {
                   Book Now
                 </button>
                 <a 
-                  href="https://wa.me/919654500004?text=Thank%20you%20for%20choosing%20Brows%20%26%20Beyond.%20We%20appreciate%20your%20interest%20in%20our%20services.%20We%20will%20get%20back%20to%20you%20soon%20once%20we%20receive%20your%20inquiry." 
+                  href="https://wa.me/919654500004?text=Hi%20Sonali!%20I%20hope%20you're%20doing%20well.%20I%20came%20across%20your%20beautiful%20work%20and%20I'm%20interested%20in%20learning%20more%20about%20your%20services.%20Could%20you%20please%20share%20some%20details%20about%20pricing%20and%20availability?%20Thank%20you!" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-rose-500 text-rose-600 font-semibold rounded-lg hover:bg-rose-50 transition-all duration-200"
@@ -396,7 +618,7 @@ const Services = () => {
                   Book Now
                 </button>
                 <a 
-                  href="https://wa.me/919654500004?text=Thank%20you%20for%20choosing%20Brows%20%26%20Beyond.%20We%20appreciate%20your%20interest%20in%20our%20services.%20We%20will%20get%20back%20to%20you%20soon%20once%20we%20receive%20your%20inquiry." 
+                  href="https://wa.me/919654500004?text=Hi%20Sonali!%20I%20hope%20you're%20doing%20well.%20I%20came%20across%20your%20beautiful%20work%20and%20I'm%20interested%20in%20learning%20more%20about%20your%20services.%20Could%20you%20please%20share%20some%20details%20about%20pricing%20and%20availability?%20Thank%20you!" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-indigo-500 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-all duration-200"
@@ -446,7 +668,7 @@ const Services = () => {
                   Book Now
                 </button>
                 <a 
-                  href="https://wa.me/919654500004?text=Thank%20you%20for%20choosing%20Brows%20%26%20Beyond.%20We%20appreciate%20your%20interest%20in%20our%20services.%20We%20will%20get%20back%20to%20you%20soon%20once%20we%20receive%20your%20inquiry." 
+                  href="https://wa.me/919654500004?text=Hi%20Sonali!%20I%20hope%20you're%20doing%20well.%20I%20came%20across%20your%20beautiful%20work%20and%20I'm%20interested%20in%20learning%20more%20about%20your%20services.%20Could%20you%20please%20share%20some%20details%20about%20pricing%20and%20availability?%20Thank%20you!" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-cyan-500 text-cyan-600 font-semibold rounded-lg hover:bg-cyan-50 transition-all duration-200"
@@ -469,14 +691,14 @@ const Services = () => {
             <div className="relative" id="el-i4rk56gj">
               <img src="https://browsandbeyondbysonali.com/wp-content/uploads/2024/07/download-14.webp" alt="BB Glow" className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300" id="el-a1c7z6vl" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" id="el-mjuyn4xr"></div>
-            </div>
+                    </div>
             <div className="p-6" id="el-zdnvcy34">
               <h3 className="text-2xl font-semibold text-neutral-900 mb-2" id="el-rgjrjsu5">BB Glow</h3>
               <p className="text-neutral-600 mb-3 text-sm leading-relaxed" id="el-38ae1frg">Korean glass skin with semi-permanent foundation, instant glow</p>
               <div className="flex items-center justify-between mb-4" id="el-qhzkm96v">
                 <span className="text-2xl font-bold text-emerald-600" id="el-o8vhx80c">₹8,000</span>
                 <span className="text-sm text-neutral-500 line-through" id="el-potdu21c">₹10,000</span>
-              </div>
+                  </div>
               <div className="flex items-center mb-4" id="el-34gra2ja">
                 <div className="flex text-yellow-400" id="el-edc41v78">
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20" id="el-vfogm7y0"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" id="el-quevnqfj"></path></svg>
@@ -496,7 +718,7 @@ const Services = () => {
                   Book Now
                 </button>
                 <a 
-                  href="https://wa.me/919654500004?text=Thank%20you%20for%20choosing%20Brows%20%26%20Beyond.%20We%20appreciate%20your%20interest%20in%20our%20services.%20We%20will%20get%20back%20to%20you%20soon%20once%20we%20receive%20your%20inquiry." 
+                  href="https://wa.me/919654500004?text=Hi%20Sonali!%20I%20hope%20you're%20doing%20well.%20I%20came%20across%20your%20beautiful%20work%20and%20I'm%20interested%20in%20learning%20more%20about%20your%20services.%20Could%20you%20please%20share%20some%20details%20about%20pricing%20and%20availability?%20Thank%20you!" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex-1 inline-flex items-center justify-center px-6 py-3 border border-emerald-500 text-emerald-600 font-semibold rounded-lg hover:bg-emerald-50 transition-all duration-200"
@@ -508,7 +730,7 @@ const Services = () => {
           </div>
         </div>
 
-        {/* Explore More Services Button */}
+                {/* Explore More Services Button */}
         <div className="text-center mt-12 sm:mt-16">
           <Button
             onClick={() => window.location.href = '/services'}
@@ -518,7 +740,7 @@ const Services = () => {
             <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </Button>
+                </Button>
         </div>
       </div>
     </section>

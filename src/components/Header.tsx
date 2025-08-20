@@ -1,14 +1,25 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const location = useLocation();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // Check if we're on the services page
+  const isServicesPage = location.pathname === "/services";
+
   useEffect(() => {
+    // Only run scroll detection on homepage
+    if (isServicesPage) {
+      setActiveSection("services");
+      return;
+    }
+
     const handleScroll = () => {
       const sections = [
         { id: "hero", offset: 0 },
@@ -47,7 +58,7 @@ const Header = () => {
     handleScroll(); // Check initial position
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isServicesPage]);
 
   return (
     <header role="banner">
@@ -60,7 +71,7 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="el-wa29zciu">
           <div className="flex justify-between items-center h-16" id="el-78f07qtj">
             <div className="flex items-center" id="el-4aglnpfq">
-              <a href="#hero" className="flex items-center" aria-label="Go to homepage">
+              <a href="/" className="flex items-center" aria-label="Go to homepage">
                 <img 
                   src="https://browsandbeyondbysonali.com/wp-content/uploads/2024/05/cropped-brows-and-beyond-by-sonali-Logo-1-1-60x60.png" 
                   alt="Brows and Beyond by Sonali - Permanent Makeup Artist Logo" 
@@ -75,55 +86,60 @@ const Header = () => {
           
           <div className="hidden md:flex items-center space-x-8" id="el-14adcrc5" role="menubar">
             <a 
-              href="#hero" 
+              href="/" 
               className={`transition-colors duration-200 ${
-                activeSection === "hero" 
+                !isServicesPage && activeSection === "hero" 
                   ? "text-pink-600 font-semibold" 
                   : "text-neutral-700 hover:text-pink-600"
               }`} 
               id="el-xscpa2a5"
               role="menuitem"
-              aria-current={activeSection === "hero" ? "page" : undefined}
+              aria-current={!isServicesPage && activeSection === "hero" ? "page" : undefined}
             >
               Home
             </a>
             <a 
-              href="#services-showcase" 
+              href={isServicesPage ? "#" : "#services-showcase"} 
+              onClick={isServicesPage ? (e) => e.preventDefault() : undefined}
               className={`transition-colors duration-200 ${
-                activeSection === "services-showcase" 
+                (isServicesPage || activeSection === "services-showcase") 
                   ? "text-pink-600 font-semibold" 
                   : "text-neutral-700 hover:text-pink-600"
               }`} 
               id="el-gmtd3zgw"
+              role="menuitem"
+              aria-current={isServicesPage || activeSection === "services-showcase" ? "page" : undefined}
             >
               Services
             </a>
             <a 
-              href="#transformation-gallery" 
+              href="/#transformation-gallery" 
               className={`transition-colors duration-200 ${
-                activeSection === "transformation-gallery" 
+                !isServicesPage && activeSection === "transformation-gallery" 
                   ? "text-pink-600 font-semibold" 
                   : "text-neutral-700 hover:text-pink-600"
               }`} 
               id="el-0fmkzdhq"
+              role="menuitem"
             >
               Gallery
             </a>
             <a 
-              href="#about-sonali" 
+              href="/#about-sonali" 
               className={`transition-colors duration-200 ${
-                activeSection === "about-sonali" 
+                !isServicesPage && activeSection === "about-sonali" 
                   ? "text-pink-600 font-semibold" 
                   : "text-neutral-700 hover:text-pink-600"
               }`} 
               id="el-l6yqtz2c"
+              role="menuitem"
             >
               About
             </a>
             <a 
-              href="#booking-cta" 
+              href="/#booking-cta" 
               className={`px-4 py-2 rounded-full transition-all duration-200 ${
-                activeSection === "booking-cta" 
+                !isServicesPage && activeSection === "booking-cta" 
                   ? "bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-lg" 
                   : "bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"
               }`} 
@@ -150,9 +166,9 @@ const Header = () => {
         <div id="mobile-menu" className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg rounded-b-lg`}>
           <div className="px-2 pt-2 pb-3 space-y-1" id="el-jbed2evw">
             <a 
-              href="#hero" 
+              href="/" 
               className={`block px-3 py-2 transition-colors ${
-                activeSection === "hero" 
+                !isServicesPage && activeSection === "hero" 
                   ? "text-pink-600 font-semibold bg-pink-50" 
                   : "text-neutral-700 hover:text-pink-600"
               }`} 
@@ -161,9 +177,10 @@ const Header = () => {
               Home
             </a>
             <a 
-              href="#services-showcase" 
+              href={isServicesPage ? "#" : "/#services-showcase"} 
+              onClick={isServicesPage ? (e) => e.preventDefault() : undefined}
               className={`block px-3 py-2 transition-colors ${
-                activeSection === "services-showcase" 
+                (isServicesPage || activeSection === "services-showcase") 
                   ? "text-pink-600 font-semibold bg-pink-50" 
                   : "text-neutral-700 hover:text-pink-600"
               }`} 
@@ -172,9 +189,9 @@ const Header = () => {
               Services
             </a>
             <a 
-              href="#transformation-gallery" 
+              href="/#transformation-gallery" 
               className={`block px-3 py-2 transition-colors ${
-                activeSection === "transformation-gallery" 
+                !isServicesPage && activeSection === "transformation-gallery" 
                   ? "text-pink-600 font-semibold bg-pink-50" 
                   : "text-neutral-700 hover:text-pink-600"
               }`} 
@@ -183,9 +200,9 @@ const Header = () => {
               Gallery
             </a>
             <a 
-              href="#about-sonali" 
+              href="/#about-sonali" 
               className={`block px-3 py-2 transition-colors ${
-                activeSection === "about-sonali" 
+                !isServicesPage && activeSection === "about-sonali" 
                   ? "text-pink-600 font-semibold bg-pink-50" 
                   : "text-neutral-700 hover:text-pink-600"
               }`} 
@@ -194,15 +211,15 @@ const Header = () => {
               About
             </a>
             <a 
-              href="#booking-cta" 
+              href="/#booking-cta" 
               className={`block px-3 py-2 transition-colors ${
-                activeSection === "booking-cta" 
+                !isServicesPage && activeSection === "booking-cta" 
                   ? "text-pink-600 font-semibold bg-pink-50" 
                   : "text-neutral-700 hover:text-pink-600"
               }`} 
               id="el-cnzhmyf1"
             >
-              Reviews
+              Book Now
             </a>
           </div>
         </div>
